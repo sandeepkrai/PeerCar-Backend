@@ -1,0 +1,48 @@
+<div class="container">
+<h1>Mysql database connection and select query</h1>
+<h2>{{title}}</h2>
+<table >
+    <tr>
+        <th>DL_NUMBER</th>
+        <th>FNAME</th>
+        <th>MNAME</th>
+        <th>LNAME</th>
+        <th>LNAME</th><th>PHONE_NUMBER</th><th>EMAIL_ID</th><th>STREET</th><th>CITY</th><th>STATE_NAME</th><th>ZIPCODE</th><th>MEMBERSHIP_TYPE</th><th>MEMBERSHIP_ID</th>
+    </tr>
+    {{#each products}}
+    <tr>
+        <td>
+            {{this.DL_NUMBER}}
+        </td><td>
+            {{this.FNAME}}
+        </td><td>
+            {{this.MNAME}}
+        </td><td>
+            {{this.LNAME}}
+        </td><td>
+            {{this.PHONE_NUMBER}}
+        </td><td>
+            {{this.EMAIL_ID}}
+        </td><td>
+            {{this.STREET}}
+        </td>
+        </td>
+        <td>
+            {{this.CITY}}
+        </td></td>
+        <td>
+            {{this.STATE_NAME}}
+        </td></td>
+        <td>
+            {{this.ZIPCODE}}
+        </td></td>
+        <td>
+            {{this.MEMBERSHIP_TYPE}}
+        </td></td>
+        <td>
+            {{this.MEMBERSHIP_ID}}
+        </td>
+    </tr>
+    {{/each}}
+</table>
+</div>
