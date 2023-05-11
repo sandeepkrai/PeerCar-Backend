@@ -57,6 +57,7 @@ router.get("/signup", function (req, res, next) {
   var drivingLicenseId = req.query.drivingLicenseId;
   var email = req.query.email;
   var password = req.query.password;
+  var phone = req.query.phone;
   // Define the query to call the signup procedure
   var query =
     "CALL signup('" +
@@ -81,6 +82,8 @@ router.get("/signup", function (req, res, next) {
     email +
     "', '" +
     password +
+    "','" +
+    phone +
     "', @success)";
   // Execute the query using the connection object
   connection.query(query, function (err, rows, fields) {
@@ -107,7 +110,7 @@ router.get("/customer", function (req, res, next) {
     if (err) throw err;
     //res.render("products", { title: "Products", products: rows });
     //console.log(rows);
-
+    console.log(req.query.email);
     res.json(rows);
   });
 });
@@ -119,41 +122,40 @@ router.get("/availableCars", function (req, res, next) {
   });
 });
 
-// Get function to book a car
+// function to book a car by calling CREATE PROCEDURE bookke_car_final(IN renter_email VARCHAR(50),IN start_time DATETIME,IN end_time DATETIME,IN car_number VARCHAR(10),IN insurance_name VARCHAR(50),IN discount_code VARCHAR(20),OUT total_amount DECIMAL(10,2))
 router.get("/bookCar", function (req, res, next) {
   // Get the input parameters from the request query parameters
-  var email = req.query.email;
+  var renterEmail = req.query.renterEmail;
+  var startTime = req.query.startTime;
+  var endTime = req.query.endTime;
   var carNumber = req.query.carNumber;
-  var startDate = req.query.startDate;
-  var endDate = req.query.endDate;
-
-  var discountId = req.query.discountId;
-  var insuranceId = req.query.insuranceId;
+  var insuranceName = req.query.insuranceName;
+  var discountCode = req.query.discountCode;
   // Define the query to call the book_car procedure
   var query =
-    "CALL book_car('" +
-    email +
+    "CALL bookke_car_final('" +
+    renterEmail +
     "', '" +
-    startDate +
+    startTime +
     "', '" +
-    endDate +
+    endTime +
     "', '" +
     carNumber +
     "', '" +
-    insuranceId +
+    insuranceName +
     "', '" +
-    discountId +
-    "', @success)";
+    discountCode +
+    "', @total_amount)";
   // Execute the query using the connection object
   connection.query(query, function (err, rows, fields) {
     if (err) throw err;
     // Define another query to get the output parameter value
-    var query2 = "SELECT @success AS success";
+    var query2 = "SELECT @total_amount AS total_amount";
     // Execute the second query using the connection object
     connection.query(query2, function (err2, rows2, fields2) {
       if (err2) throw err2;
       // Get the result from the first row and column
-      var result = rows2[0].success;
+      var result = rows2[0].total_amount;
       // Send the result as a JSON response
       res.json(result);
     });
@@ -316,34 +318,31 @@ router.get("/signup", function (req, res, next) {
   });
 });
 
-// add a new car
-router.get("/addCar", function (req, res, next) {
+// get function for CREATE PROCEDURE lendd_cars(IN car_number VARCHAR(10), IN number_of_persons INT, IN number_of_luggage INT, IN cost_per_day DECIMAL(10,2), IN late_fee_per_hour DECIMAL(10,2), IN availability_car_flag INT, IN owner_first_name VARCHAR(50), IN owner_middle_name VARCHAR(50), IN owner_last_name VARCHAR(50), IN email VARCHAR(50))
+router.get("/lendCar", function (req, res, next) {
   var query =
-    "CALL add_car('" +
-    req.body.carName +
+    "CALL lendd_cars('" +
+    req.query.carNumber +
     "', '" +
-    req.body.carModel +
+    req.query.numberOfPersons +
     "', '" +
-    req.body.carCategory +
+    req.query.numberOfLuggage +
     "', '" +
-    req.body.carYear +
+    req.query.costPerDay +
     "', '" +
-    req.body.carColor +
+    req.query.lateFeePerHour +
     "', '" +
-    req.body.carMileage +
+    1 +
     "', '" +
-    req.body.carLocation +
+    req.query.ownerFirstName +
     "', '" +
-    req.body.carStatus +
+    req.query.ownerMiddleName +
     "', '" +
-    req.body.carImage +
+    req.query.ownerLastName +
     "', '" +
-    req.body.carDescription +
-    "', '" +
-    req.body.carPrice +
-    "', '" +
-    req.body.carOwner +
-    "', @success)";
+    req.query.email +
+    "')";
+  console.log(query);
   connection.query(query, function (err, rows, fields) {
     if (err) throw err;
     //res.json(rows);
@@ -364,7 +363,11 @@ router.get("/addCar", function (req, res, next) {
 // post a review having a start field and an email field
 router.get("/addReview", function (req, res, next) {
   var query =
-    "CALL give_review('" + req.query.star + "', '" + req.query.carNumber + "')";
+    "CALL give_review(" +
+    parseInt(req.query.star) +
+    ", '" +
+    req.query.carNumber +
+    "')";
   console.log(query);
   connection.query(query, function (err, rows, fields) {
     if (err) throw err;
@@ -385,29 +388,22 @@ router.get("/addReview", function (req, res, next) {
 
 // get request for show_bookings_by_customer
 router.get("/showBookingsByCustomer", function (req, res, next) {
-  var query =
-    "CALL show_bookings_by_customer('" + req.query.email + "')";
+  var query = "CALL show_bookings_by_customer('" + req.query.email + "')";
   console.log(query);
   connection.query(query, function (err, rows, fields) {
     if (err) throw err;
     res.json(rows);
-
-    
   });
 });
 
 // get customer cars
 router.get("/getCustomerCars", function (req, res, next) {
-  var query =
-    "CALL get_customer_cars('" + req.query.email + "')";
-  console.log(query); 
+  var query = "CALL get_customer_cars('" + req.query.email + "')";
+  console.log(query);
   connection.query(query, function (err, rows, fields) {
     if (err) throw err;
     res.json(rows);
   });
 });
-
-
-
 
 module.exports = router;
