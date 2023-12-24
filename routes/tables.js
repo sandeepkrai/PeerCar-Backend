@@ -156,6 +156,7 @@ router.get("/bookCar", function (req, res, next) {
       if (err2) throw err2;
       // Get the result from the first row and column
       var result = rows2[0].total_amount;
+      console.log(result);
       // Send the result as a JSON response
       res.json(result);
     });
